@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StoreAppApi.DTOs.company;
+using StoreAppApi.DTOs.product;
+using StoreAppApi.models.product;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
 using System;
@@ -35,6 +37,29 @@ namespace StoreAppApi.Controllers.company
             return new CompanyDTO
             {
                 Items = _mapper.Map<List<CompanyItemDTO>>(сompany)
+            };
+        }
+
+        [HttpGet("{id}/Products")]
+        public async Task<ActionResult<ProductDTO>> GetCompanyProduct(int id)
+        {
+            Сompany company = await _efModel.Сompanies
+                .Include(u => u.Products)
+                    .ThenInclude(u => u.Video)
+                .Include(u => u.Products)
+                    .ThenInclude(u => u.Images)
+                .Include(u => u.Products)
+                    .ThenInclude(u => u.Genre)
+                .Include(u => u.Products)
+                    .ThenInclude(u => u.SocialNetwork)    
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (company == null)
+                return NotFound();
+
+            return new ProductDTO
+            {
+                Items = _mapper.Map<List<ProductItemDTO>>(company.Products)
             };
         }
 

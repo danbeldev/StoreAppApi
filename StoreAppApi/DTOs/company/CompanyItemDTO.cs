@@ -14,7 +14,7 @@ namespace StoreAppApi.DTOs.company
         [Required] public string Icon { get; set; }
         [Required] public DateTime DateCreating { get; set; }
 
-        public decimal TotalProfuct
+        public decimal TotalProduct
         {
             get
             {

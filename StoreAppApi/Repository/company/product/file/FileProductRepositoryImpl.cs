@@ -13,7 +13,7 @@ namespace StoreAppApi.Repository.product.file
         {
             string startupPath = Directory.GetCurrentDirectory();
 
-            string path = startupPath + $"/companies/{companyTitle}/products/{productTitle}_{productId}{extension}";
+            string path = startupPath + $"/companies/{companyTitle}/products/{productTitle}/file/{productTitle}_{productId}{extension}";
 
             using(var fileStream = new FileStream(path, FileMode.Create))
             {

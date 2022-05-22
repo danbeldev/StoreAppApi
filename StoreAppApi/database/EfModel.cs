@@ -32,5 +32,6 @@ namespace FastestDeliveryApi.database
         public virtual DbSet<Review> Reviews { get; set; }
         public virtual DbSet<CompanyUser> CompanyUsers { get; set; }
         public virtual DbSet<Сompany> Сompanies { get; set; }
+        public virtual DbSet<AdminUser> AdminUsers { get; set; }
     }
 }

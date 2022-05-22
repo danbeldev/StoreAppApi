@@ -8,31 +8,29 @@ namespace StoreAppApi.Repository.product.icon
     {
         const string ProductDir = "products/";
 
-        public IconProductRepositoryImpl()
+        public void DeleteProductIcon(
+            int productId, string productTitle, string companyTitle)
         {
-            if (!Directory.Exists(ProductDir))
-                Directory.CreateDirectory(ProductDir);
-        }
-
-        public void DeleteProductIcon(int productId, string productTitle)
-        {
-            var path = $"{ProductDir}/{productTitle}/icon/{productId}.jpg";
+            var path = $"companies/{companyTitle}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg";
             if (File.Exists(path))
                 File.Delete(path);
 
         }
 
-        public byte[] GetProductIcon(int productId, string productTitle)
+        public byte[] GetProductIcon(int productId, string productTitle, string companyTitle)
         {
-            var path = $"{ProductDir}/{productTitle}/icon/{productId}.jpg";
+            var path = $"companies/{companyTitle}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg";
             if (File.Exists(path))
                 return File.ReadAllBytes(path);
             else
                 return null;
         }
 
-        public void PostProductIcon(byte[] imgBytes, int productId, string productTitle)
+        public void PostProductIcon(byte[] imgBytes, int productId, string productTitle, string companyTitle)
         {
+            if (!Directory.Exists($"companies/{companyTitle}/{ProductDir}{productTitle}/icon/"))
+                Directory.CreateDirectory($"companies/{companyTitle}/{ProductDir}{productTitle}/icon/");
+
             var image = Image.Load(imgBytes);
             image.Mutate(m =>
                 m.Resize(
@@ -43,7 +41,7 @@ namespace StoreAppApi.Repository.product.icon
                     }
                  )
             );
-            image.Save($"{ProductDir}/{productTitle}/icon/{productId}.jpg");
+            image.Save($"companies/{companyTitle}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg");
         }
     }
 }

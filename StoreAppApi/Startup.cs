@@ -16,6 +16,7 @@ using StoreAppApi.Mappings;
 using StoreAppApi.Repository.image;
 using StoreAppApi.Repository.product.file;
 using StoreAppApi.Repository.product.icon;
+using StoreAppApi.Repository.product.image;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,6 +52,8 @@ namespace StoreAppApi
             services.AddSingleton<IconProductRepositoryImpl>();
 
             services.AddTransient<FileProductRepository, FileProductRepositoryImpl>();
+
+            services.AddTransient<ImageProductRepository, ImageProductRepositoryImpl>();
 
             services.AddAutoMapper(typeof(MappingProfile));
 
