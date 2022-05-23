@@ -8,12 +8,12 @@ namespace StoreAppApi.Repository.product.file
         
         public async void UploadFile(
             IFormFile file, string extension, string companyTitle, string productTitle,
-            int productId
+            int productId, int companyId
             )
         {
             string startupPath = Directory.GetCurrentDirectory();
 
-            string path = startupPath + $"/companies/{companyTitle}/products/{productTitle}/file/{productTitle}_{productId}{extension}";
+            string path = startupPath + $"/companies/{companyTitle}_{companyId}/products/{productTitle}/file/{productTitle}_{productId}{extension}";
 
             using(var fileStream = new FileStream(path, FileMode.Create))
             {

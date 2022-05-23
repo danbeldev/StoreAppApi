@@ -9,18 +9,18 @@ namespace StoreAppApi.Repository.product.image
         const string ProductDir = "products/";
 
         public void DeleteProductImage(
-            int productId, string productTitle, string companyTitle, int productImageId)
+            int productId, string productTitle, string companyTitle, int productImageId, int companyId)
         {
-            var path = $"companies/{companyTitle}/{ProductDir}{productTitle}/images/{productTitle}_{productImageId}.jpg";
+            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/images/{productTitle}_{productImageId}.jpg";
 
             if (File.Exists(path))
                 File.Delete(path);
         }
 
         public byte[] GetProductImage(
-            int productId, string productTitle, string companyTitle, int productImageId)
+            int productId, string productTitle, string companyTitle, int productImageId, int companyId)
         {
-            var path = $"companies/{companyTitle}/{ProductDir}{productTitle}/images/{productTitle}_{productImageId}.jpg";
+            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/images/{productTitle}_{productImageId}.jpg";
 
             if (File.Exists(path))
                 return File.ReadAllBytes(path);
@@ -29,9 +29,9 @@ namespace StoreAppApi.Repository.product.image
         }
 
         public void PostProductImage(
-            byte[] imgBytes, int productId, string productTitle, string companyTitle, int productImageId)
+            byte[] imgBytes, int productId, string productTitle, string companyTitle, int productImageId, int companyId)
         {
-            var path = $"companies/{companyTitle}/{ProductDir}{productTitle}/images/";
+            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/images/";
 
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);

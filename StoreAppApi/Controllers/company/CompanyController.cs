@@ -9,6 +9,7 @@ using StoreAppApi.DTOs.product;
 using StoreAppApi.models.product;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
+using StoreAppApi.Repository.company.logo;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -22,8 +23,10 @@ namespace StoreAppApi.Controllers.company
     {
         private EfModel _efModel;
         private readonly IMapper _mapper;
+        private readonly LogoCompanyRepository _logoCompanyRepository;
 
-        public CompanyController(EfModel efModel, IMapper mapper)
+        public CompanyController(
+            EfModel efModel, IMapper mapper)
         {
             _efModel = efModel;
             _mapper = mapper;

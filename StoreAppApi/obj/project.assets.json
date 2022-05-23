@@ -1526,25 +1526,37 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\danbe\\.nuget\\packages\\": {}
+    "C:\\Users\\Dem_1_01\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\DevExpress 21.2\\Components\\Offline Packages": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
+    "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\danbe\\source\\repos\\StoreAppApi\\StoreAppApi\\StoreAppApi.csproj",
+      "projectUniqueName": "C:\\Users\\Dem_1_01\\source\\repos\\StoreAppApi\\StoreAppApi\\StoreAppApi.csproj",
       "projectName": "StoreAppApi",
-      "projectPath": "C:\\Users\\danbe\\source\\repos\\StoreAppApi\\StoreAppApi\\StoreAppApi.csproj",
-      "packagesPath": "C:\\Users\\danbe\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\danbe\\source\\repos\\StoreAppApi\\StoreAppApi\\obj\\",
+      "projectPath": "C:\\Users\\Dem_1_01\\source\\repos\\StoreAppApi\\StoreAppApi\\StoreAppApi.csproj",
+      "packagesPath": "C:\\Users\\Dem_1_01\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Dem_1_01\\source\\repos\\StoreAppApi\\StoreAppApi\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\DevExpress 21.2\\Components\\Offline Packages",
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+        "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+      ],
       "configFilePaths": [
-        "C:\\Users\\danbe\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\Dem_1_01\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 21.2.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net5.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\DevExpress 21.2\\Components\\System\\Components\\Packages": {},
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
@@ -1623,7 +1635,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.101\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.406\\RuntimeIdentifierGraph.json"
       }
     }
   }

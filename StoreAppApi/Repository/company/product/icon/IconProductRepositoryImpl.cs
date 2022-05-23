@@ -9,27 +9,28 @@ namespace StoreAppApi.Repository.product.icon
         const string ProductDir = "products/";
 
         public void DeleteProductIcon(
-            int productId, string productTitle, string companyTitle)
+            int productId, string productTitle, string companyTitle, int companyId)
         {
-            var path = $"companies/{companyTitle}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg";
+            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg";
             if (File.Exists(path))
                 File.Delete(path);
 
         }
 
-        public byte[] GetProductIcon(int productId, string productTitle, string companyTitle)
+        public byte[] GetProductIcon(int productId, string productTitle, string companyTitle, int companyId)
         {
-            var path = $"companies/{companyTitle}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg";
+            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg";
             if (File.Exists(path))
                 return File.ReadAllBytes(path);
             else
                 return null;
         }
 
-        public void PostProductIcon(byte[] imgBytes, int productId, string productTitle, string companyTitle)
+        public void PostProductIcon(
+            byte[] imgBytes, int productId, string productTitle, string companyTitle, int companyId)
         {
-            if (!Directory.Exists($"companies/{companyTitle}/{ProductDir}{productTitle}/icon/"))
-                Directory.CreateDirectory($"companies/{companyTitle}/{ProductDir}{productTitle}/icon/");
+            if (!Directory.Exists($"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/"))
+                Directory.CreateDirectory($"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/");
 
             var image = Image.Load(imgBytes);
             image.Mutate(m =>
@@ -41,7 +42,7 @@ namespace StoreAppApi.Repository.product.icon
                     }
                  )
             );
-            image.Save($"companies/{companyTitle}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg");
+            image.Save($"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg");
         }
     }
 }
