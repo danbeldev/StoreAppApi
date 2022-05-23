@@ -13,6 +13,8 @@ namespace StoreAppApi.DTOs.company
         [Required] public string Description { get; set; }
         [Required] public string Icon { get; set; }
         [Required] public DateTime DateCreating { get; set; }
+        public string Logo { get; set; }
+        public string Banner { get; set; }
 
         public decimal TotalProduct
         {

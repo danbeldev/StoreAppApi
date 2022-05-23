@@ -3,6 +3,7 @@ using StoreAppApi.models.product;
 using StoreAppApi.models.product.review;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
+using StoreAppApi.models.сompany.product;
 
 namespace FastestDeliveryApi.database
 {
@@ -33,5 +34,6 @@ namespace FastestDeliveryApi.database
         public virtual DbSet<CompanyUser> CompanyUsers { get; set; }
         public virtual DbSet<Сompany> Сompanies { get; set; }
         public virtual DbSet<AdminUser> AdminUsers { get; set; }
+        public virtual DbSet<Country> Country { get; set; }
     }
 }

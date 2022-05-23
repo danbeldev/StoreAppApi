@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StoreAppApi.DTOs.company;
 using StoreAppApi.DTOs.product;
-using StoreAppApi.models.product;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
+using StoreAppApi.Repository.company.banner;
 using StoreAppApi.Repository.company.logo;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -24,13 +25,125 @@ namespace StoreAppApi.Controllers.company
         private EfModel _efModel;
         private readonly IMapper _mapper;
         private readonly LogoCompanyRepository _logoCompanyRepository;
+        private readonly BannerRepository _bannerRepository;
 
         public CompanyController(
-            EfModel efModel, IMapper mapper)
+            EfModel efModel, IMapper mapper,
+            LogoCompanyRepository logoCompanyRepository,
+            BannerRepository bannerRepository)
         {
+            _bannerRepository = bannerRepository;
+            _logoCompanyRepository = logoCompanyRepository;
             _efModel = efModel;
             _mapper = mapper;
-         }
+        }
+
+        [HttpGet("{id}/banner.jpg")]
+        public async Task<ActionResult> GetCompanyBanner(int id)
+        {
+            Сompany сompany = await _efModel.Сompanies.FindAsync(id);
+
+            if (сompany == null)
+                return NotFound();
+
+            byte[] file = _bannerRepository.GetCompanyBanner(
+                сompany.Title, сompany.Id
+                );
+
+            if (file != null)
+                return File(file, "image/jpeg");
+            else
+                return NotFound();
+        }
+
+        [Authorize(Roles = "CompanyUser")]
+        [HttpPost("Banner")]
+        public async Task<ActionResult> PostCompany(IFormFile banner)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            CompanyUser companyUser = await _efModel.CompanyUsers
+                .Include(u => u.Сompany)
+                .FirstOrDefaultAsync(u => u.Id == idUser);
+
+            if (companyUser == null)
+                return NotFound();
+
+            MemoryStream memoryStream = new MemoryStream();
+            await banner.CopyToAsync(memoryStream);
+            _bannerRepository.DeleteCompanyBanner(
+                companyUser.Сompany.Title, companyUser.Сompany.Id
+                );
+
+            _bannerRepository.PostCompanyBanner(
+                memoryStream.ToArray(),
+                companyUser.Сompany.Title, companyUser.Сompany.Id
+                );
+
+            companyUser.Сompany.Banner = $"" +
+                $"http://localhost:5000/api/Company/{companyUser.Сompany.Id}/banner.jpg";
+            await _efModel.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpGet("{id}/logo.jpg")]
+        public async Task<ActionResult> GetCompanyLogo(int id)
+        {
+            Сompany сompany = await _efModel.Сompanies.FindAsync(id);
+
+            if (сompany == null)
+                return NotFound();
+
+            byte[] file = _logoCompanyRepository.GetCompanyLogo(
+                сompany.Title, сompany.Id
+                );
+
+            if (file != null)
+                return File(file, "image/jpeg");
+            else
+                return NotFound();
+        }
+
+        [Authorize(Roles = "CompanyUser")]
+        [HttpPost("Logo")]
+        public async Task<ActionResult> PostCompanyLogo(IFormFile logo)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            CompanyUser companyUser = await _efModel.CompanyUsers
+                .Include(u => u.Сompany)
+                .FirstOrDefaultAsync(u => u.Id == idUser);
+
+            if (companyUser == null)
+                return NotFound();
+
+            MemoryStream memoryStream = new MemoryStream();
+            await logo.CopyToAsync(memoryStream);
+            _logoCompanyRepository.DeleteCompanyLogo(
+                companyUser.Сompany.Title, companyUser.Сompany.Id
+                );
+            _logoCompanyRepository.PostCompanyLogo(
+                memoryStream.ToArray(),
+                companyUser.Сompany.Title, companyUser.Сompany.Id
+                );
+
+            companyUser.Сompany.Logo = $"" +
+                $"http://localhost:5000/api/Company/{companyUser.Сompany.Id}/logo.jpg";
+            await _efModel.SaveChangesAsync();
+
+            return Ok();
+        }
 
         [HttpGet]
         public async Task<ActionResult<CompanyDTO>> GetCompany()

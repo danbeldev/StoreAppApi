@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using MySqlConnector;
 using StoreAppApi.Auth;
 using StoreAppApi.Mappings;
+using StoreAppApi.Repository.company.banner;
 using StoreAppApi.Repository.company.logo;
 using StoreAppApi.Repository.image;
 using StoreAppApi.Repository.product.file;
@@ -57,6 +58,8 @@ namespace StoreAppApi
             services.AddTransient<ImageProductRepository, ImageProductRepositoryImpl>();
 
             services.AddTransient<LogoCompanyRepository, LogoCompanyRepositoryImpl>();
+
+            services.AddTransient<BannerRepository, BannerRepositoryImpl>();
 
             services.AddAutoMapper(typeof(MappingProfile));
 

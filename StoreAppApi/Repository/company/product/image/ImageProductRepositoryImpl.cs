@@ -11,7 +11,8 @@ namespace StoreAppApi.Repository.product.image
         public void DeleteProductImage(
             int productId, string productTitle, string companyTitle, int productImageId, int companyId)
         {
-            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/images/{productTitle}_{productImageId}.jpg";
+            var path = $"companies/{companyTitle}_{companyId}" +
+                $"/{ProductDir}{productTitle}_{productId}/images/{productTitle}_{productImageId}.jpg";
 
             if (File.Exists(path))
                 File.Delete(path);
@@ -20,7 +21,9 @@ namespace StoreAppApi.Repository.product.image
         public byte[] GetProductImage(
             int productId, string productTitle, string companyTitle, int productImageId, int companyId)
         {
-            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/images/{productTitle}_{productImageId}.jpg";
+            var path = $"companies/{companyTitle}_{companyId}" +
+                $"/{ProductDir}{productTitle}_{productId}" +
+                $"/images/{productTitle}_{productImageId}.jpg";
 
             if (File.Exists(path))
                 return File.ReadAllBytes(path);
@@ -31,7 +34,8 @@ namespace StoreAppApi.Repository.product.image
         public void PostProductImage(
             byte[] imgBytes, int productId, string productTitle, string companyTitle, int productImageId, int companyId)
         {
-            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/images/";
+            var path = $"companies/{companyTitle}_{companyId}" +
+                $"/{ProductDir}{productTitle}_{productId}/images/";
 
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);

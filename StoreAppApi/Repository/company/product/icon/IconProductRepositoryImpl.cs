@@ -11,7 +11,9 @@ namespace StoreAppApi.Repository.product.icon
         public void DeleteProductIcon(
             int productId, string productTitle, string companyTitle, int companyId)
         {
-            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg";
+            var path = $"companies/" +
+                $"{companyTitle}_{companyId}" +
+                $"/{ProductDir}{productTitle}_{productId}/icon/{productTitle}_{productId}.jpg";
             if (File.Exists(path))
                 File.Delete(path);
 
@@ -19,7 +21,9 @@ namespace StoreAppApi.Repository.product.icon
 
         public byte[] GetProductIcon(int productId, string productTitle, string companyTitle, int companyId)
         {
-            var path = $"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg";
+            var path = $"companies/" +
+                $"{companyTitle}_{companyId}/" +
+                $"{ProductDir}{productTitle}_{productId}/icon/{productTitle}_{productId}.jpg";
             if (File.Exists(path))
                 return File.ReadAllBytes(path);
             else
@@ -29,8 +33,10 @@ namespace StoreAppApi.Repository.product.icon
         public void PostProductIcon(
             byte[] imgBytes, int productId, string productTitle, string companyTitle, int companyId)
         {
-            if (!Directory.Exists($"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/"))
-                Directory.CreateDirectory($"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/");
+            if (!Directory.Exists($"companies/" +
+                $"{companyTitle}_{companyId}/{ProductDir}{productTitle}_{productId}/icon/"))
+                Directory.CreateDirectory($"companies/" +
+                    $"{companyTitle}_{companyId}/{ProductDir}{productTitle}_{productId}/icon/");
 
             var image = Image.Load(imgBytes);
             image.Mutate(m =>
@@ -42,7 +48,9 @@ namespace StoreAppApi.Repository.product.icon
                     }
                  )
             );
-            image.Save($"companies/{companyTitle}_{companyId}/{ProductDir}{productTitle}/icon/{productTitle}_{productId}.jpg");
+            image.Save($"companies/" +
+                $"{companyTitle}_{companyId}/{ProductDir}{productTitle}_{productId}" +
+                $"/icon/{productTitle}_{productId}.jpg");
         }
     }
 }

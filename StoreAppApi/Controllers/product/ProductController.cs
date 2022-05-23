@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StoreAppApi.Controllers.product.enums;
 using StoreAppApi.DTOs.company;
+using StoreAppApi.DTOs.company.product;
 using StoreAppApi.DTOs.product;
 using StoreAppApi.DTOs.product.review;
 using StoreAppApi.models.product;
@@ -60,7 +61,7 @@ namespace StoreAppApi.Controllers.product
                 return NotFound();
 
             byte[] file = _iconProductRepositoryImpl.GetProductIcon(
-                productId, product.Title, product.Company.Title);
+                productId, product.Title, product.Company.Title, product.Company.Id);
             if (file != null)
                 return File(file, "image/jpeg");
             else
@@ -110,7 +111,7 @@ namespace StoreAppApi.Controllers.product
                 return NotFound();
 
             _imageProductRepository.DeleteProductImage(
-                product.Id, product.Title, product.Company.Title, idImage
+                product.Id, product.Title, product.Company.Title, idImage, product.Company.Id
                 );
 
             return Ok();
@@ -127,7 +128,7 @@ namespace StoreAppApi.Controllers.product
                 return NotFound();
 
             byte[] file = _imageProductRepository.GetProductImage(
-                product.Id, product.Title, product.Company.Title, idImage
+                product.Id, product.Title, product.Company.Title, idImage, product.Company.Id
                 );
             if (file != null)
                 return File(file, "image/jpeg");
@@ -219,7 +220,8 @@ namespace StoreAppApi.Controllers.product
             await fileImage.CopyToAsync(memoryStream);
 
             _imageProductRepository.PostProductImage(
-                memoryStream.ToArray(), product.Id, product.Title, product.Company.Title, imageNew.Id
+                memoryStream.ToArray(), product.Id,
+                product.Title, product.Company.Title, imageNew.Id, product.Company.Id
                 );
 
 
@@ -261,9 +263,10 @@ namespace StoreAppApi.Controllers.product
             MemoryStream memoryStream = new MemoryStream();
             await fileIcon.CopyToAsync(memoryStream);
             _iconProductRepositoryImpl.DeleteProductIcon(
-                product.Id, product.Title, product.Company.Title);
+                product.Id, product.Title, product.Company.Title, product.Company.Id);
             _iconProductRepositoryImpl.PostProductIcon(
-                memoryStream.ToArray(), product.Id, product.Title, product.Company.Title);
+                memoryStream.ToArray(), product.Id, product.Title,
+                product.Company.Title, product.Company.Id);
 
             product.Icon = $"http://localhost:5000/api/product/icon/{product.Id}.jpg";
             await _efModel.SaveChangesAsync();
@@ -325,7 +328,8 @@ namespace StoreAppApi.Controllers.product
                 Price = productPostDTO.Price,
                 ProductType = productPostDTO.ProductType,
                 Genre = await _efModel.Genres.FindAsync(productPostDTO.GenreId),
-                ProductStatus = ProductStatus.ACTIVE
+                ProductStatus = ProductStatus.ACTIVE,
+                Country = productPostDTO.Country
             };
 
             _efModel.Products.Add(product);
@@ -336,7 +340,8 @@ namespace StoreAppApi.Controllers.product
 
         [HttpGet]
         public async Task<ActionResult<ProductDTO>> GetProduct(
-            string search, [FromQuery] List<int> genreId, AgeRating? ageRating, Boolean? advertising,
+            string search, [FromQuery] List<int> genreId, [FromQuery] List<int> countryId,
+             AgeRating? ageRating, Boolean? advertising,
              Boolean? free, DateTime? startDatePublication, DateTime? endDatePublication,
              float? startRating, float? endRating, ProductType? productType,
              ProductStatus? productStatus, ProductOrderBy? orderBy
@@ -359,6 +364,10 @@ namespace StoreAppApi.Controllers.product
 
             if (genreId != null && genreId.Count > 0)
                 products = products.Where(u => genreId.Contains(u.Genre.Id));
+
+            if (countryId != null && countryId.Count > 0)
+                products = products.Where(u => countryId.Contains(u.Country.Id));
+
 
             if (ageRating != null)
                 products = products.Where(
@@ -406,6 +415,15 @@ namespace StoreAppApi.Controllers.product
             };
         }
 
+        [HttpGet("Country")]
+        public async Task<ActionResult<CountryDTO>> GetCountry()
+        {
+            return new CountryDTO
+            {
+                Items = await _efModel.Country.ToListAsync()
+            };
+        }
+
         [HttpGet("Genre")]
         public async Task<ActionResult<GenreDTO>> GetGenre()
         {
@@ -450,9 +468,31 @@ namespace StoreAppApi.Controllers.product
             };
         }
 
-        [Authorize("CompanyUser")]
+        [HttpGet("{id}/file.{extension}")]
+        public async Task<ActionResult> GetFile(int id,string extension)
+        {
+            Product product = await _efModel.Products
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (product == null)
+                return NotFound();
+
+            byte[] file = _fileProductRepository.PostFile(
+                "." +extension, product.Company.Title, product.Title, product.Id,
+                product.Company.Id
+                );
+
+            if (file != null)
+                return File(file, "multipart/form-data");
+            else
+                return NotFound();
+        }
+
+        [Authorize(Roles = "CompanyUser")]
         [HttpPost("{id}/File")]
-        public async Task<ActionResult> PostFile(int id,string extension, IFormFile formFile)
+        public async Task<ActionResult> PostFile(
+            int id,IFormFile formFile)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
 
@@ -461,7 +501,9 @@ namespace StoreAppApi.Controllers.product
 
             int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
 
-            var user = await _efModel.CompanyUsers.FindAsync(idUser);
+            CompanyUser user = await _efModel.CompanyUsers
+                .Include(u => u.Сompany)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
                 return NotFound();
@@ -480,7 +522,8 @@ namespace StoreAppApi.Controllers.product
                 return NotFound();
 
             _fileProductRepository.UploadFile(
-                formFile, extension, product.Company.Title, product.Company.Title, id
+                formFile, product.Company.Title, product.Title,
+                id, product.Company.Id
                 );
 
             return Ok();

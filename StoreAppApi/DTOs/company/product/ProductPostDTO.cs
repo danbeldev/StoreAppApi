@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using StoreAppApi.models.product;
 using StoreAppApi.models.product.enums;
+using StoreAppApi.models.сompany.product;
 using StoreAppApi.models.сompany.product.enums;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace StoreAppApi.DTOs.product
         public string Phone { get; set; }
         public string Website { get; set; }
         public string PrivacyPolicyWebUrl { get; set; }
+        [Required] public Country Country { get; set; }
         public virtual List<SocialNetwork> SocialNetwork { get; set; } = new List<SocialNetwork>();
         [Required] public AgeRating AgeRating { get; set; }
         public int? Price { get; set; }

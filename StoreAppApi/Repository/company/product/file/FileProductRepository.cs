@@ -4,7 +4,10 @@ namespace StoreAppApi.Repository.product.file
 {
     public interface FileProductRepository
     {
-        void UploadFile(IFormFile file, string extension, string companyTitle, string productTitle,
+        void UploadFile(IFormFile file, string companyTitle, string productTitle,
+            int productId, int companyId);
+
+        byte[] PostFile(string extension, string companyTitle, string productTitle,
             int productId, int companyId);
     }
 }

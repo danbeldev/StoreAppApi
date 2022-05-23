@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace StoreAppApi.Repository.company.logo
+﻿namespace StoreAppApi.Repository.company.logo
 {
-    interface LogoCompanyRepository
+    public interface LogoCompanyRepository
     {
-        public byte[] GetProductLogo(string companyTitle, int companyId);
+        public byte[] GetCompanyLogo(string companyTitle, int companyId);
 
-        public void PostProductLogo(byte[] imgBytes, string companyTitle, int companyId);
+        public void PostCompanyLogo(byte[] imgBytes, string companyTitle, int companyId);
 
-        public void DeleteProductLogo(int productId, string companyTitle, int companyId);
+        public void DeleteCompanyLogo(string companyTitle, int companyId);
 
     }
 }

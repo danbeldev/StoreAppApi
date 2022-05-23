@@ -2,6 +2,7 @@
 using StoreAppApi.models.product.review;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
+using StoreAppApi.models.сompany.product;
 using StoreAppApi.models.сompany.product.enums;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace StoreAppApi.models.product
         [Required] public string FullDescription { get; set; }
         [Required] public Boolean Advertising { get; set; }
         [Required] public string Version { get; set; }
+        [Required] public Country Country { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
         public string Website { get; set; }

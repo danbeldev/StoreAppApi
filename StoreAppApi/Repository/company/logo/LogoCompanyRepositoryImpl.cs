@@ -10,25 +10,30 @@ namespace StoreAppApi.Repository.company.logo
 {
     public class LogoCompanyRepositoryImpl : LogoCompanyRepository
     {
-        public void DeleteProductLogo(int productId, string companyTitle, int companyId)
+        public void DeleteCompanyLogo(string companyTitle, int companyId)
         {
-            string path = $"companies/{companyTitle}_{companyId}/logo/logo_{companyTitle}_{companyId}";
+            string path = $"companies/{companyTitle}_{companyId}" +
+                $"/logo/logo_{companyTitle}_{companyId}.jpg";
             if (File.Exists(path))
                 File.Delete(path);
         }
 
-        public byte[] GetProductLogo(string companyTitle, int companyId)
+        public byte[] GetCompanyLogo(string companyTitle, int companyId)
         {
-            string path = $"companies/{companyTitle}_{companyId}/logo/logo_{companyTitle}_{companyId}";
+            string path = $"companies/{companyTitle}_{companyId}" +
+                $"/logo/logo_{companyTitle}_{companyId}.jpg";
             if (File.Exists(path))
                 return File.ReadAllBytes(path);
             else
                 return null;
         }
 
-        public void PostProductLogo(byte[] imgBytes, string companyTitle, int companyId)
+        public void PostCompanyLogo(byte[] imgBytes, string companyTitle, int companyId)
         {
             string path = $"companies/{companyTitle}_{companyId}/logo/";
+
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
 
             var image = Image.Load(imgBytes);
             image.Mutate(m =>
@@ -41,7 +46,7 @@ namespace StoreAppApi.Repository.company.logo
                  )
             );
 
-            image.Save($"{path}/logo_{companyTitle}_{companyId}");
+            image.Save($"{path}/logo_{companyTitle}_{companyId}.jpg");
         }
     }
 }

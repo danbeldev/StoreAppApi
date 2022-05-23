@@ -5,7 +5,6 @@ using StoreAppApi.DTOs.user;
 using StoreAppApi.models.product;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
-using System.Collections.Generic;
 
 namespace StoreAppApi.Mappings
 {
@@ -18,6 +17,7 @@ namespace StoreAppApi.Mappings
             CreateMap<BaseUser, BaseUserDTO>().ReverseMap();
 
             CreateMap<Сompany, CompanyItemDTO>().ReverseMap();
+
         }
     }
 }
