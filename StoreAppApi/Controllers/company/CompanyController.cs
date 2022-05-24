@@ -4,15 +4,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using StoreAppApi.Controllers.company.common;
+using StoreAppApi.Controllers.company.enums;
 using StoreAppApi.DTOs.company;
 using StoreAppApi.DTOs.product;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
+using StoreAppApi.models.сompany.product.enums;
 using StoreAppApi.Repository.company.banner;
 using StoreAppApi.Repository.company.logo;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -86,7 +90,7 @@ namespace StoreAppApi.Controllers.company
                 );
 
             companyUser.Сompany.Banner = $"" +
-                $"http://localhost:5000/api/Company/{companyUser.Сompany.Id}/banner.jpg";
+                $"{Constants.BASE_URL}/Company/{companyUser.Сompany.Id}/banner.jpg";
             await _efModel.SaveChangesAsync();
 
             return Ok();
@@ -139,20 +143,48 @@ namespace StoreAppApi.Controllers.company
                 );
 
             companyUser.Сompany.Logo = $"" +
-                $"http://localhost:5000/api/Company/{companyUser.Сompany.Id}/logo.jpg";
+                $"{Constants.BASE_URL}/Company/{companyUser.Сompany.Id}/logo.jpg";
             await _efModel.SaveChangesAsync();
 
             return Ok();
         }
 
         [HttpGet]
-        public async Task<ActionResult<CompanyDTO>> GetCompany()
+        public async Task<ActionResult<CompanyDTO>> GetCompany(
+            int pageSize, int pageNumber, string search,
+            DateTime? startDateCreating, DateTime? endDateCreating,
+            CompanyOrderBy? companyOrderBy
+            )
         {
-            List<Сompany> сompany = await _efModel.Сompanies.ToListAsync();
+
+            IQueryable<Сompany> сompany = _efModel.Сompanies
+                .Skip(pageSize * pageNumber).Take(pageSize);
+
+            if (search != null)
+                сompany = сompany.Where(u => u.Title.Contains(search));
+
+            if (startDateCreating != null)
+                сompany = сompany.Where(u => u.DateCreating >= startDateCreating);
+
+            if (endDateCreating != null)
+                сompany = сompany.Where(u => u.DateCreating <= endDateCreating);
+
+            if (companyOrderBy != null)
+            {
+                switch (companyOrderBy)
+                {
+                    case CompanyOrderBy.TITLE:
+                        сompany = сompany.OrderBy(u => u.Title);
+                        break;
+                    case CompanyOrderBy.DATE:
+                        сompany = сompany.OrderBy(u => u.DateCreating);
+                        break;
+                }
+            }
 
             return new CompanyDTO
             {
-                Items = _mapper.Map<List<CompanyItemDTO>>(сompany)
+                Items = _mapper.Map<List<CompanyItemDTO>>(await сompany.ToListAsync())
             };
         }
 
@@ -195,7 +227,7 @@ namespace StoreAppApi.Controllers.company
             if (user == null)
                 return NotFound();
 
-            CompanyUser companyUser = new CompanyUser
+            CompanyUser companyUser =  new CompanyUser
             {
                 Сompany = new Сompany
                 {
@@ -209,8 +241,10 @@ namespace StoreAppApi.Controllers.company
                 Password = user.Password,
                 Photo = user.Photo,
                 Reviews = user.Reviews,
-                ProductsDownload = user.ProductsDownload
+                ProductsDownload = user.ProductsDownload,
             };
+
+            _efModel.BaseUsers.Remove(user);
 
             _efModel.CompanyUsers.Add(companyUser);        
             await _efModel.SaveChangesAsync();

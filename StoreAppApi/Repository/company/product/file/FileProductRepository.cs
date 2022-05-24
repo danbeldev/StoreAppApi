@@ -7,7 +7,7 @@ namespace StoreAppApi.Repository.product.file
         void UploadFile(IFormFile file, string companyTitle, string productTitle,
             int productId, int companyId);
 
-        byte[] PostFile(string extension, string companyTitle, string productTitle,
+        byte[] GetFile(string extension, string companyTitle, string productTitle,
             int productId, int companyId);
     }
 }

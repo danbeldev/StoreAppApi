@@ -17,7 +17,6 @@ namespace StoreAppApi.Mappings
             CreateMap<BaseUser, BaseUserDTO>().ReverseMap();
 
             CreateMap<Сompany, CompanyItemDTO>().ReverseMap();
-
         }
     }
 }

@@ -28,6 +28,8 @@ namespace StoreAppApi.models.product
         [Required] public AgeRating AgeRating { get; set; }
         public int? Price { get; set; }
         public string PrivacyPolicyWebUrl { get; set; }
+        public string FileUrl { get; set; }
+        public ProductExtension FileExtension { get; set; }
         [Required] public DateTime DatePublication { get; set; }
         [Required] public ProductType ProductType { get; set; }
         [Required] public ProductStatus ProductStatus { get; set; }

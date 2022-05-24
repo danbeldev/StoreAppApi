@@ -6,7 +6,7 @@ namespace StoreAppApi.Repository.product.file
 {
     public class FileProductRepositoryImpl : FileProductRepository
     {
-        public byte[] PostFile(
+        public byte[] GetFile(
             string extension, string companyTitle,
             string productTitle, int productId, int companyId
             )

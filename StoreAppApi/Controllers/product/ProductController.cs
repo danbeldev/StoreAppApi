@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using StoreAppApi.Controllers.company.common;
 using StoreAppApi.Controllers.product.enums;
 using StoreAppApi.DTOs.company;
 using StoreAppApi.DTOs.company.product;
@@ -226,7 +227,7 @@ namespace StoreAppApi.Controllers.product
 
 
             Image image = await _efModel.Images.FindAsync(imageNew.Id);
-            image.ImageUrl = $"http://localhost:5000/api/product/{product.Id}/image/{image.Id}.jpg";
+            image.ImageUrl = $"{Constants.BASE_URL}/product/{product.Id}/image/{image.Id}.jpg";
             await _efModel.SaveChangesAsync();
 
             return Ok();
@@ -268,7 +269,7 @@ namespace StoreAppApi.Controllers.product
                 memoryStream.ToArray(), product.Id, product.Title,
                 product.Company.Title, product.Company.Id);
 
-            product.Icon = $"http://localhost:5000/api/product/icon/{product.Id}.jpg";
+            product.Icon = $"{Constants.BASE_URL}/product/icon/{product.Id}.jpg";
             await _efModel.SaveChangesAsync();
 
             return Ok();
@@ -339,7 +340,7 @@ namespace StoreAppApi.Controllers.product
         }
 
         [HttpGet]
-        public async Task<ActionResult<ProductDTO>> GetProduct(
+        public async Task<ActionResult<ProductDTO>> GetProduct(int pageSize, int pageNumber,
             string search, [FromQuery] List<int> genreId, [FromQuery] List<int> countryId,
              AgeRating? ageRating, Boolean? advertising,
              Boolean? free, DateTime? startDatePublication, DateTime? endDatePublication,
@@ -353,7 +354,6 @@ namespace StoreAppApi.Controllers.product
                 .Include(u => u.Genre)
                 .Include(u => u.Reviews)
                 .Include(u => u.SocialNetwork);
-
 
             if (search != null)
                 products = products.Where(
@@ -408,6 +408,46 @@ namespace StoreAppApi.Controllers.product
             if (productStatus != null)
                 products = products.Where(
                     u => u.ProductStatus == productStatus);
+
+            if(orderBy != null)
+            {
+                switch (orderBy)
+                {
+                    case ProductOrderBy.TITLE:
+                        products = products.OrderBy(u => u.Title);
+                        break;
+                    case ProductOrderBy.RATING_MIN_MAX:
+                        products = products.OrderBy(u => u.Rating);
+                        break;
+                    case ProductOrderBy.RATING_MAX_MIN:
+                        products = products.OrderByDescending(u => u.Rating);
+                        break;
+                    case ProductOrderBy.AMOUNT_RATING_MIN_MAX:
+                        products = products.OrderBy(u => u.ReviewsTotal);
+                        break;
+                    case ProductOrderBy.AMOUNT_RATING_MAX_MIN:
+                        products = products.OrderByDescending(u => u.ReviewsTotal);
+                        break;
+                    case ProductOrderBy.AGE_RATING_MIN_MAX:
+                        products = products.OrderBy(u => u.AgeRating);
+                        break;
+                    case ProductOrderBy.AGE_RATING_MAX_MIN:
+                        products = products.OrderByDescending(u => u.AgeRating);
+                        break;
+                    case ProductOrderBy.AMOUNT_USER_DOWNLOAD_MIN_MAX:
+                        products = products.OrderBy(u => u.UserDownloadTotal);
+                        break;
+                    case ProductOrderBy.AMOUNT_USER_DOWLOAD_MAX_MIN:
+                        products = products.OrderByDescending(u => u.UserDownloadTotal);
+                        break;
+                    case ProductOrderBy.DATE:
+                        products = products.OrderBy(u => u.DatePublication);
+                        break;
+                }
+            }
+
+            products = products
+                .Skip(pageSize * pageNumber).Take(pageSize);
 
             return new ProductDTO
             {
@@ -468,8 +508,8 @@ namespace StoreAppApi.Controllers.product
             };
         }
 
-        [HttpGet("{id}/file.{extension}")]
-        public async Task<ActionResult> GetFile(int id,string extension)
+        [HttpGet("{id}/file.extension")]
+        public async Task<ActionResult> GetFile(int id)
         {
             Product product = await _efModel.Products
                 .Include(u => u.Company)
@@ -478,8 +518,10 @@ namespace StoreAppApi.Controllers.product
             if (product == null)
                 return NotFound();
 
-            byte[] file = _fileProductRepository.PostFile(
-                "." +extension, product.Company.Title, product.Title, product.Id,
+            string extension = product.FileExtension.ToString().ToLower();
+
+            byte[] file = _fileProductRepository.GetFile(
+                $".{extension}", product.Company.Title, product.Title, product.Id,
                 product.Company.Id
                 );
 
@@ -492,7 +534,7 @@ namespace StoreAppApi.Controllers.product
         [Authorize(Roles = "CompanyUser")]
         [HttpPost("{id}/File")]
         public async Task<ActionResult> PostFile(
-            int id,IFormFile formFile)
+            int id,IFormFile file)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
 
@@ -503,7 +545,7 @@ namespace StoreAppApi.Controllers.product
 
             CompanyUser user = await _efModel.CompanyUsers
                 .Include(u => u.Сompany)
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.Id == idUser);
 
             if (user == null)
                 return NotFound();
@@ -522,9 +564,26 @@ namespace StoreAppApi.Controllers.product
                 return NotFound();
 
             _fileProductRepository.UploadFile(
-                formFile, product.Company.Title, product.Title,
+                file, product.Company.Title, product.Title,
                 id, product.Company.Id
                 );
+
+            string extension = Path.GetExtension(file.FileName);
+
+            product.FileUrl = $"{Constants.BASE_URL}/product/{product.Id}/file.{extension}";
+            switch (extension)
+            {
+                case ".apk" :
+                    product.FileExtension = ProductExtension.APK;
+                    break;
+
+                case ".aab":
+                    product.FileExtension = ProductExtension.AAB;
+                    break;
+                default:
+                    return BadRequest();
+            }
+            await _efModel.SaveChangesAsync();
 
             return Ok();
         }
@@ -533,6 +592,9 @@ namespace StoreAppApi.Controllers.product
         [HttpPost("{id}/Review")]
         public async Task<ActionResult> PostReview(int id, ReviewPostDTO reviewDTO)
         {
+            if (reviewDTO.Rating > 5)
+                return BadRequest();
+
             var identity = HttpContext.User.Identity as ClaimsIdentity;
 
             if (identity == null)

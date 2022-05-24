@@ -18,6 +18,8 @@ namespace StoreAppApi.DTOs.product
         [Required] public string FullDescription { get; set; }
         [Required] public Boolean Advertising { get; set; }
         [Required] public string Version { get; set; }
+        public string FileUrl { get; set; }
+        public ProductExtension FileExtension { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
         public string Website { get; set; }

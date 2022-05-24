@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using StoreAppApi.Auth;
+using StoreAppApi.Controllers.company.common;
 using StoreAppApi.DTOs.user;
 using StoreAppApi.models.user;
 using StoreAppApi.Repository;
@@ -94,7 +95,7 @@ namespace StoreAppApi.Controllers
             if (user == null)
                 return NotFound();
 
-            user.Photo = "http://localhost:5000/api/user/user_" + idUser + ".jpg";
+            user.Photo = $"{Constants.BASE_URL}/user/user_" + idUser + ".jpg";
 
             MemoryStream memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);

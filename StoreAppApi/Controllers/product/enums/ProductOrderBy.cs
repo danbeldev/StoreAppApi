@@ -3,6 +3,7 @@
     public enum ProductOrderBy
     {
         TITLE,
+        DATE,
         RATING_MIN_MAX,
         RATING_MAX_MIN,
         AMOUNT_RATING_MIN_MAX,
