@@ -7,6 +7,5 @@
         public void PostCompanyLogo(byte[] imgBytes, string companyTitle, int companyId);
 
         public void DeleteCompanyLogo(string companyTitle, int companyId);
-
     }
 }

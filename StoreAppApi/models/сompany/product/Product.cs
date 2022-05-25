@@ -2,6 +2,7 @@
 using StoreAppApi.models.product.review;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
+using StoreAppApi.models.сompany.Event;
 using StoreAppApi.models.сompany.product;
 using StoreAppApi.models.сompany.product.enums;
 using System;
@@ -72,5 +73,6 @@ namespace StoreAppApi.models.product
         [JsonIgnore, Required] public Сompany Company { get; set; }
         [JsonIgnore] public virtual List<Review> Reviews { get; set; } = new List<Review>();
         [JsonIgnore] public virtual List<BaseUser> UserDownload { get; set; } = new List<BaseUser>();
+        [JsonIgnore] public virtual List<Event> Events { get; set; } = new List<Event>();
     }
 }

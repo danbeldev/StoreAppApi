@@ -15,6 +15,7 @@ namespace StoreAppApi.models.сompany
         public string Banner { get; set; }
         [Required] public DateTime DateCreating { get; set; }
 
+        [JsonIgnore] public List<Event.Event> Events { get; set; } = new List<Event.Event>();
         [JsonIgnore] public List<Product> Products { get; set; } = new List<Product>();
     }
 }

@@ -329,7 +329,7 @@ namespace StoreAppApi.Controllers.product
                 Price = productPostDTO.Price,
                 ProductType = productPostDTO.ProductType,
                 Genre = await _efModel.Genres.FindAsync(productPostDTO.GenreId),
-                ProductStatus = ProductStatus.ACTIVE,
+                ProductStatus = ProductStatus.EXAMINATION,
                 Country = productPostDTO.Country
             };
 
@@ -508,7 +508,7 @@ namespace StoreAppApi.Controllers.product
             };
         }
 
-        [HttpGet("{id}/file.extension")]
+        [HttpGet("{id}/file")]
         public async Task<ActionResult> GetFile(int id)
         {
             Product product = await _efModel.Products

@@ -2,6 +2,7 @@
 {
     public enum ProductStatus
     {
+        EXAMINATION,
         ACTIVE,
         BLOCKED
     }

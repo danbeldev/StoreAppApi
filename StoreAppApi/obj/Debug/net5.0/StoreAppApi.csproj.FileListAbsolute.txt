@@ -100,9 +100,6 @@ C:\Users\Dem_1_01\source\repos\StoreAppApi\StoreAppApi\obj\Debug\net5.0\StoreApp
 C:\Users\Dem_1_01\source\repos\StoreAppApi\StoreAppApi\obj\Debug\net5.0\ref\StoreAppApi.dll
 C:\Users\Dem_1_01\source\repos\StoreAppApi\StoreAppApi\obj\Debug\net5.0\StoreAppApi.pdb
 C:\Users\Dem_1_01\source\repos\StoreAppApi\StoreAppApi\obj\Debug\net5.0\StoreAppApi.genruntimeconfig.cache
-C:\Users\danbe\source\repos\StoreAppApi\StoreAppApi\bin\Debug\net5.0\StoreAppApi.StaticWebAssets.xml
-C:\Users\danbe\source\repos\StoreAppApi\StoreAppApi\bin\Debug\net5.0\companies\dgsh_1\products\dgsh_1\file\file_dgsh_1.json
-C:\Users\danbe\source\repos\StoreAppApi\StoreAppApi\bin\Debug\net5.0\companies\dgsh_1\products\string_1\file\file_string_1.json
 C:\Users\Dem_1_01\source\repos\StoreAppApi\StoreAppApi\bin\Debug\net5.0\companies\dgsh_1\products\dgsh_1\file\file_dgsh_1.json
 C:\Users\Dem_1_01\source\repos\StoreAppApi\StoreAppApi\bin\Debug\net5.0\companies\dgsh_1\products\string_1\file\file_string_1.json
 C:\Users\Dem_1_01\source\repos\StoreAppApi\StoreAppApi\bin\Debug\net5.0\companies\string_1\products\string_1\file\file_string_1.json
