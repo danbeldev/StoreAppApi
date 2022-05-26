@@ -18,6 +18,7 @@ using StoreAppApi.models.сompany.product.enums;
 using StoreAppApi.Repository.product.file;
 using StoreAppApi.Repository.product.icon;
 using StoreAppApi.Repository.product.image;
+using StoreAppApi.Repository.product.video;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,21 +33,24 @@ namespace StoreAppApi.Controllers.product
     public class ProductController : ControllerBase
     {
         private readonly IMapper _mapper;
-        public readonly IconProductRepositoryImpl _iconProductRepositoryImpl;
+        public readonly IconProductRepository _iconProductRepository;
         private EfModel _efModel;
         private FileProductRepository _fileProductRepository;
         private ImageProductRepository _imageProductRepository;
+        private VideoProductRepository _videoProductRepository;
 
         public ProductController(
             IMapper mapper, EfModel model,
-            IconProductRepositoryImpl iconProductRepositoryImpl,
+            IconProductRepository iconProductRepository,
             FileProductRepository fileProductRepository,
-            ImageProductRepository imageProductRepository
+            ImageProductRepository imageProductRepository,
+            VideoProductRepository videoProductRepository
             )
         {
+            _videoProductRepository = videoProductRepository;
             _imageProductRepository = imageProductRepository;
             _fileProductRepository = fileProductRepository;
-            _iconProductRepositoryImpl = iconProductRepositoryImpl;
+            _iconProductRepository = iconProductRepository;
             _mapper = mapper;
             _efModel = model;
         }
@@ -61,7 +65,7 @@ namespace StoreAppApi.Controllers.product
             if (product == null)
                 return NotFound();
 
-            byte[] file = _iconProductRepositoryImpl.GetProductIcon(
+            byte[] file = _iconProductRepository.GetProductIcon(
                 productId, product.Title, product.Company.Title, product.Company.Id);
             if (file != null)
                 return File(file, "image/jpeg");
@@ -263,9 +267,9 @@ namespace StoreAppApi.Controllers.product
 
             MemoryStream memoryStream = new MemoryStream();
             await fileIcon.CopyToAsync(memoryStream);
-            _iconProductRepositoryImpl.DeleteProductIcon(
+            _iconProductRepository.DeleteProductIcon(
                 product.Id, product.Title, product.Company.Title, product.Company.Id);
-            _iconProductRepositoryImpl.PostProductIcon(
+            _iconProductRepository.PostProductIcon(
                 memoryStream.ToArray(), product.Id, product.Title,
                 product.Company.Title, product.Company.Id);
 
@@ -409,7 +413,7 @@ namespace StoreAppApi.Controllers.product
                 products = products.Where(
                     u => u.ProductStatus == productStatus);
 
-            if(orderBy != null)
+            if (orderBy != null)
             {
                 switch (orderBy)
                 {
@@ -508,7 +512,7 @@ namespace StoreAppApi.Controllers.product
             };
         }
 
-        [HttpGet("{id}/file")]
+        [HttpGet("{id}/File")]
         public async Task<ActionResult> GetFile(int id)
         {
             Product product = await _efModel.Products
@@ -517,6 +521,9 @@ namespace StoreAppApi.Controllers.product
 
             if (product == null)
                 return NotFound();
+
+            if (product.ProductStatus == ProductStatus.BLOCKED)
+                return BadRequest("Product status blocked");
 
             string extension = product.FileExtension.ToString().ToLower();
 
@@ -534,7 +541,7 @@ namespace StoreAppApi.Controllers.product
         [Authorize(Roles = "CompanyUser")]
         [HttpPost("{id}/File")]
         public async Task<ActionResult> PostFile(
-            int id,IFormFile file)
+            int id, IFormFile file)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
 
@@ -557,9 +564,6 @@ namespace StoreAppApi.Controllers.product
             if (product == null)
                 return NotFound();
 
-            if (product.ProductStatus == ProductStatus.BLOCKED)
-                return NotFound("Product status blocked");
-
             if (user.Сompany.Id != product.Company.Id)
                 return NotFound();
 
@@ -570,10 +574,10 @@ namespace StoreAppApi.Controllers.product
 
             string extension = Path.GetExtension(file.FileName);
 
-            product.FileUrl = $"{Constants.BASE_URL}/product/{product.Id}/file.{extension}";
+            product.FileUrl = $"{Constants.BASE_URL}/Product/{product.Id}/File";
             switch (extension)
             {
-                case ".apk" :
+                case ".apk":
                     product.FileExtension = ProductExtension.APK;
                     break;
 
@@ -583,6 +587,71 @@ namespace StoreAppApi.Controllers.product
                 default:
                     return BadRequest();
             }
+            await _efModel.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpGet("{id}/Video.mp4")]
+        public async Task<ActionResult> GetVideo(int id)
+        {
+            Product product = await _efModel.Products
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (product == null)
+                return NotFound();
+
+            byte[] fileVideo = _videoProductRepository.GetFile(
+                product.Company.Title, product.Title,
+                product.Id, product.Company.Id
+                );
+
+            if (fileVideo != null)
+                return File(fileVideo, "video/mp4");
+            else
+                return NotFound();
+        }
+
+        [Authorize(Roles = "CompanyUser")]
+        [HttpPost("{id}/Video")]
+        public async Task<ActionResult> PostVideo(
+            int id,string TitleVideo, IFormFile fileVideo)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            CompanyUser user = await _efModel.CompanyUsers
+                .Include(u => u.Сompany)
+                .FirstOrDefaultAsync(u => u.Id == idUser);
+
+            if (user == null)
+                return NotFound();
+
+            Product product = await _efModel.Products
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (product == null)
+                return NotFound();
+
+            if (user.Сompany.Id != product.Company.Id)
+                return NotFound();
+
+            _videoProductRepository.UploadFile(
+                fileVideo, product.Company.Title, product.Title,
+                product.Id, product.Company.Id
+                );
+
+            product.Video = new Video
+            {
+                Title = TitleVideo,
+                VideoUrl = $"{Constants.BASE_URL}/Product/{id}/Video.mp4"
+            };
             await _efModel.SaveChangesAsync();
 
             return Ok();

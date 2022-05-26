@@ -31,7 +31,7 @@ namespace StoreAppApi.Controllers.user
             _mapper = mapper;
         }
 
-        [Authorize(Roles = "UserCompany")]
+        [Authorize(Roles = "CompanyUser")]
         [HttpGet("/Event")]
         public async Task<ActionResult<EventDTO>> GetEvent()
         {
@@ -56,7 +56,7 @@ namespace StoreAppApi.Controllers.user
             };
         }
 
-        [Authorize(Roles = "UserCompany")]
+        [Authorize(Roles = "CompanyUser")]
         [HttpGet("/Company")]
         public async Task<ActionResult<CompanyItemDTO>> GetCompany()
         {
@@ -77,7 +77,7 @@ namespace StoreAppApi.Controllers.user
             return _mapper.Map<CompanyItemDTO>(companyUser.Сompany);
         }
 
-        [Authorize(Roles = "UserCompany")]
+        [Authorize(Roles = "CompanyUser")]
         [HttpGet("/Product")]
         public async Task<ActionResult<ProductDTO>> GetProductCompany()
         {

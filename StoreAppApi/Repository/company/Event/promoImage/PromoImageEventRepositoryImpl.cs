@@ -13,7 +13,7 @@ namespace StoreAppApi.Repository.company.Event.promo
         {
             string path = $"companies/{companyTitle}_{companyId}" +
                 $"/products/{productTitle}_{productId}" +
-                $"/events/{eventTitle}_{eventId}/promo/event_{eventTitle}_{eventId}.jpg";
+                $"/events/{eventTitle}_{eventId}/promoImage/event_{eventTitle}_{eventId}.jpg";
             
             if (File.Exists(path))
                 return File.ReadAllBytes(path);
@@ -28,7 +28,7 @@ namespace StoreAppApi.Repository.company.Event.promo
         {
             string path = $"companies/{companyTitle}_{companyId}" +
                 $"/products/{productTitle}_{productId}" +
-                   $"/events/{eventTitle}_{eventId}/promo/";
+                   $"/events/{eventTitle}_{eventId}/promoImage/";
 
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);

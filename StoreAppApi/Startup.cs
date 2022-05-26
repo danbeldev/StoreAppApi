@@ -13,13 +13,16 @@ using Microsoft.OpenApi.Models;
 using MySqlConnector;
 using StoreAppApi.Auth;
 using StoreAppApi.Mappings;
+using StoreAppApi.Repository;
 using StoreAppApi.Repository.company.banner;
 using StoreAppApi.Repository.company.Event.promo;
+using StoreAppApi.Repository.company.Event.promoVideo;
 using StoreAppApi.Repository.company.logo;
 using StoreAppApi.Repository.image;
 using StoreAppApi.Repository.product.file;
 using StoreAppApi.Repository.product.icon;
 using StoreAppApi.Repository.product.image;
+using StoreAppApi.Repository.product.video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,9 +53,9 @@ namespace StoreAppApi
 
             services.AddDbContext<EfModel>(o => o.UseMySql(builder.ConnectionString, ServerVersion.AutoDetect(builder.ConnectionString)));
 
-            services.AddSingleton<ImageUserRepositoryImpl>();
+            services.AddTransient<IconProductRepository, IconProductRepositoryImpl>();
 
-            services.AddSingleton<IconProductRepositoryImpl>();
+            services.AddTransient<ImageUserRepository, ImageUserRepositoryImpl>();
 
             services.AddTransient<FileProductRepository, FileProductRepositoryImpl>();
 
@@ -64,9 +67,15 @@ namespace StoreAppApi
 
             services.AddTransient<PromoImageEventRepository, PromoImageEventRepositoryImpl>();
 
+            services.AddTransient<VideoProductRepository, VideoProductRepositoryImpl>();
+
+            services.AddTransient<PromoVideoEventRepository, PromoVideoEventRepositoryImpl>();
+
             services.AddAutoMapper(typeof(MappingProfile));
 
             services.AddControllers();
+
+            services.AddCors();
 
             services.AddControllers()
                 .AddJsonOptions(
@@ -124,12 +133,28 @@ namespace StoreAppApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            var basePath = "storeApp";
+            app.UsePathBase("/" + basePath);
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "StoreAppApi v1"));
+
+                app.UseSwagger(c =>
+                {
+                    c.RouteTemplate = "swagger/{documentName}/swagger.json";
+                    c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+                    {
+                        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"http://{httpReq.Host.Value}/{basePath}" } };
+                    });
+                });
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint($"/storeApp/swagger/v1/swagger.json", "StoreAppApi v1");
+                });
             }
+
+            app.UseCors(
+               options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
+           );
 
             app.UseRouting();
 

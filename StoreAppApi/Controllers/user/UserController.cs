@@ -26,10 +26,10 @@ namespace StoreAppApi.Controllers
     {
         private EfModel _efModel;
         private readonly IMapper _mapper;
-        private readonly ImageUserRepositoryImpl _imageUserRepository;
+        private readonly ImageUserRepository _imageUserRepository;
 
         public UserController(
-            EfModel model, ImageUserRepositoryImpl imageUserRepository, IMapper mapper
+            EfModel model, ImageUserRepository imageUserRepository, IMapper mapper
             )
         {
             _mapper = mapper;

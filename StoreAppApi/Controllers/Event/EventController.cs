@@ -19,6 +19,7 @@ using StoreAppApi.Repository.company.Event.promo;
 using System.IO;
 using StoreAppApi.Controllers.company.common;
 using System.Linq;
+using StoreAppApi.Repository.company.Event.promoVideo;
 
 namespace StoreAppApi.Controllers.Event
 {
@@ -29,12 +30,14 @@ namespace StoreAppApi.Controllers.Event
         private EfModel _efModel;
         private readonly IMapper _mapper;
         private readonly PromoImageEventRepository _promoImageEventRepository;
-
+        private readonly PromoVideoEventRepository _promoVideoEventRepository;
         public EventController(
             EfModel efModel, IMapper mapper,
-            PromoImageEventRepository promoImageEventRepository
+            PromoImageEventRepository promoImageEventRepository,
+            PromoVideoEventRepository promoVideoEventRepository
             )
         {
+            _promoVideoEventRepository = promoVideoEventRepository;
             _promoImageEventRepository = promoImageEventRepository;
             _mapper = mapper;
             _efModel = efModel;
@@ -72,7 +75,7 @@ namespace StoreAppApi.Controllers.Event
         {
             var Event = await _efModel.Events.FindAsync(id);
 
-            if (Event != null)
+            if (Event == null)
                 return NotFound();
 
             return _mapper.Map<EventItemDTO>(Event);
@@ -167,6 +170,69 @@ namespace StoreAppApi.Controllers.Event
                 return File(promoFile, "image/jpeg");
             else
                 return NotFound();
+        }
+
+        [HttpGet("{id}/promo.mp4")]
+        public async Task<ActionResult> GetEventVideo(int id)
+        {
+            var Eveent = await _efModel.Events
+                .Include(u => u.Product)
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (Eveent == null)
+                return NotFound();
+
+            byte[] fileVideo = _promoVideoEventRepository.GetFileVideo(
+                Eveent.Company.Title, Eveent.Company.Id, Eveent.Product.Id,
+                Eveent.Product.Title, Eveent.Id, Eveent.Title
+                );
+
+            if (fileVideo != null)
+                return File(fileVideo, "video/mp4");
+            else
+                return NotFound();
+        }
+
+        [Authorize]
+        [HttpPost("{id}/Promo/Video")]
+        public async Task<ActionResult> PostVideo(int id, IFormFile promoVideo)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            CompanyUser user = await _efModel.CompanyUsers
+                .Include(u => u.Сompany)
+                .FirstOrDefaultAsync(u => u.Id == idUser);
+
+            if (user == null)
+                return NotFound();
+
+            var Event = await _efModel.Events
+                .Include(u => u.Company)
+                .Include(u => u.Product)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (Event == null)
+                return NotFound();
+
+            if (user.Сompany.Id != Event.Company.Id)
+                return NotFound();
+
+            _promoVideoEventRepository.UploadFileVideo(
+                promoVideo, Event.Company.Title, Event.Company.Id,
+                Event.Product.Id, Event.Product.Title,
+                Event.Id, Event.Title
+                );
+
+            Event.PromoVideoUrl = $"{Constants.BASE_URL}/Event/{id}/promo.mp4";
+            await _efModel.SaveChangesAsync();
+           
+            return Ok();
         }
 
         [Authorize(Roles = "CompanyUser")]
