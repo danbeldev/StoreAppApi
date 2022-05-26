@@ -20,7 +20,7 @@ namespace StoreAppApi.DTOs.product
         public string Phone { get; set; }
         public string Website { get; set; }
         public string PrivacyPolicyWebUrl { get; set; }
-        [Required] public Country Country { get; set; }
+        [Required] public int CountryId { get; set; }
         public virtual List<SocialNetwork> SocialNetwork { get; set; } = new List<SocialNetwork>();
         [Required] public AgeRating AgeRating { get; set; }
         public int? Price { get; set; }

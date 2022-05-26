@@ -1,6 +1,7 @@
 ﻿using StoreAppApi.models.product;
 using StoreAppApi.models.product.enums;
 using StoreAppApi.models.user;
+using StoreAppApi.models.сompany.product;
 using StoreAppApi.models.сompany.product.enums;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,7 @@ namespace StoreAppApi.DTOs.product
             }
         }
 
+        [Required] public Country Country { get; set; }
         [Required] public Genre Genre { get; set; }
         public virtual List<Image> Images { get; set; } = new List<Image>();
         public Video Video { get; set; }

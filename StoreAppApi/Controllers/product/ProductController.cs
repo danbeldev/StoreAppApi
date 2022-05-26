@@ -334,7 +334,7 @@ namespace StoreAppApi.Controllers.product
                 ProductType = productPostDTO.ProductType,
                 Genre = await _efModel.Genres.FindAsync(productPostDTO.GenreId),
                 ProductStatus = ProductStatus.EXAMINATION,
-                Country = productPostDTO.Country
+                Country = await _efModel.Country.FindAsync(productPostDTO.CountryId)
             };
 
             _efModel.Products.Add(product);
