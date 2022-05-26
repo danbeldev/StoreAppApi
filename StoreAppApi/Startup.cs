@@ -2,12 +2,9 @@ using FastestDeliveryApi.database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MySqlConnector;
@@ -23,11 +20,8 @@ using StoreAppApi.Repository.product.file;
 using StoreAppApi.Repository.product.icon;
 using StoreAppApi.Repository.product.image;
 using StoreAppApi.Repository.product.video;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace StoreAppApi
 {
@@ -44,7 +38,7 @@ namespace StoreAppApi
         public void ConfigureServices(IServiceCollection services)
         {
             MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
-            builder.Server = "cfif31.ru";
+            builder.Server = "localhost";
             builder.Port = 3306;
             builder.UserID = "ISPr24-39_BeluakovDS";
             builder.Password = "ISPr24-39_BeluakovDS";
@@ -143,7 +137,7 @@ namespace StoreAppApi
                     c.RouteTemplate = "swagger/{documentName}/swagger.json";
                     c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
                     {
-                        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"http://{httpReq.Host.Value}/{basePath}" } };
+                        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"https://{httpReq.Host.Value}/{basePath}" } };
                     });
                 });
                 app.UseSwaggerUI(c =>

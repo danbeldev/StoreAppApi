@@ -20,6 +20,7 @@ namespace StoreAppApi
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseUrls("http://localhost:5007");
                     webBuilder.UseStartup<Startup>();
                 });
     }

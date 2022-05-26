@@ -7,6 +7,6 @@ namespace StoreAppApi.Controllers.company.common
 {
     public class Constants
     {
-       public const string BASE_URL = "http://localhost:5000/api";
+       public const string BASE_URL = "https://cfif31.ru/storeApp";
     }
 }
