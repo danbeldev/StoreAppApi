@@ -227,7 +227,7 @@ namespace StoreAppApi.Controllers.product
 
 
             Image image = await _efModel.Images.FindAsync(imageNew.Id);
-            image.ImageUrl = $"{Constants.BASE_URL}/product/{product.Id}/image/{image.Id}.jpg";
+            image.ImageUrl = $"{Constants.BASE_URL}/Product/{product.Id}/image/{image.Id}.jpg";
             await _efModel.SaveChangesAsync();
 
             return Ok();
@@ -269,7 +269,7 @@ namespace StoreAppApi.Controllers.product
                 memoryStream.ToArray(), product.Id, product.Title,
                 product.Company.Title, product.Company.Id);
 
-            product.Icon = $"{Constants.BASE_URL}/product/icon/{product.Id}.jpg";
+            product.Icon = $"{Constants.BASE_URL}/Product/icon/{product.Id}.jpg";
             await _efModel.SaveChangesAsync();
 
             return Ok();
@@ -447,7 +447,7 @@ namespace StoreAppApi.Controllers.product
             }
 
             products = products
-                .Skip(pageSize * pageNumber).Take(pageSize);
+                .Skip(pageNumber).Take(pageSize);
 
             return new ProductDTO
             {

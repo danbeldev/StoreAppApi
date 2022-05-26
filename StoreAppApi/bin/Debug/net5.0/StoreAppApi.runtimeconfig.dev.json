@@ -1,8 +1,11 @@
 {
   "runtimeOptions": {
     "additionalProbingPaths": [
-      "C:\\Users\\danbe\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\danbe\\.nuget\\packages"
+      "C:\\Users\\Dem_1_01\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\Dem_1_01\\.nuget\\packages",
+      "C:\\Program Files (x86)\\DevExpress 21.2\\Components\\Offline Packages",
+      "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+      "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet"
     ]
   }
 }

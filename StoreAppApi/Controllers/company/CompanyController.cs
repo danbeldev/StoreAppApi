@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using StoreAppApi.Controllers.company.common;
 using StoreAppApi.Controllers.company.enums;
 using StoreAppApi.DTOs.company;
+using StoreAppApi.DTOs.company.Event;
 using StoreAppApi.DTOs.product;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
@@ -158,7 +159,7 @@ namespace StoreAppApi.Controllers.company
         {
 
             IQueryable<Сompany> сompany = _efModel.Сompanies
-                .Skip(pageSize * pageNumber).Take(pageSize);
+                .Skip(pageNumber).Take(pageSize);
 
             if (search != null)
                 сompany = сompany.Where(u => u.Title.Contains(search));
@@ -188,6 +189,22 @@ namespace StoreAppApi.Controllers.company
             };
         }
 
+        [HttpGet("{id}/Events")]
+        public async Task<ActionResult<EventDTO>> GetEvent(int id)
+        {
+            Сompany сompany = await _efModel.Сompanies
+                .Include(u => u.Events)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (сompany == null)
+                return NotFound();
+
+            return new EventDTO
+            {
+                Items = _mapper.Map<List<EventItemDTO>>(сompany.Events)
+            };
+        }
+
         [HttpGet("{id}/Products")]
         public async Task<ActionResult<ProductDTO>> GetCompanyProduct(int id)
         {
@@ -199,7 +216,7 @@ namespace StoreAppApi.Controllers.company
                 .Include(u => u.Products)
                     .ThenInclude(u => u.Genre)
                 .Include(u => u.Products)
-                    .ThenInclude(u => u.SocialNetwork)    
+                    .ThenInclude(u => u.SocialNetwork)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (company == null)

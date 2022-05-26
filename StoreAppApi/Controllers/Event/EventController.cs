@@ -18,6 +18,7 @@ using StoreAppApi.DTOs.product;
 using StoreAppApi.Repository.company.Event.promo;
 using System.IO;
 using StoreAppApi.Controllers.company.common;
+using System.Linq;
 
 namespace StoreAppApi.Controllers.Event
 {
@@ -40,13 +41,29 @@ namespace StoreAppApi.Controllers.Event
         }
 
         [HttpGet]
-        public async Task<ActionResult<EventDTO>> GetEvent()
+        public async Task<ActionResult<EventDTO>> GetEvent(
+            int pageNumber, int pageSize, string search, EventStatus? eventStatus,
+            DateTime? startDate, DateTime? endDate
+            )
         {
-            var events = await _efModel.Events.ToListAsync();
+            IQueryable<models.сompany.Event.Event> events = _efModel.Events
+                .Skip(pageNumber).Take(pageSize);
+
+            if (search != null)
+                events = events.Where(u => u.Title.Contains(search));
+
+            if (eventStatus != null)
+                events = events.Where(u => u.EventStatus == eventStatus);
+
+            if (startDate != null)
+                events = events.Where(u => u.DatePublication >= startDate);
+
+            if (endDate != null)
+                events = events.Where(u => u.DatePublication <= endDate);
 
             return new EventDTO
             {
-                Items = _mapper.Map<List<EventItemDTO>>(events)
+                Items = _mapper.Map<List<EventItemDTO>>(await events.ToListAsync())
             };
         }
 
