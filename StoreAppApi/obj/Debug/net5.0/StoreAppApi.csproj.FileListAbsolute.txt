@@ -152,3 +152,4 @@ C:\Users\zibzib\Source\Repos\StoreAppApi\StoreAppApi\obj\Debug\net5.0\StoreAppAp
 C:\Users\zibzib\Source\Repos\StoreAppApi\StoreAppApi\obj\Debug\net5.0\ref\StoreAppApi.dll
 C:\Users\zibzib\Source\Repos\StoreAppApi\StoreAppApi\obj\Debug\net5.0\StoreAppApi.pdb
 C:\Users\zibzib\Source\Repos\StoreAppApi\StoreAppApi\obj\Debug\net5.0\StoreAppApi.genruntimeconfig.cache
+C:\Users\danbe\source\repos\StoreAppApi\StoreAppApi\bin\Debug\net5.0\StoreAppApi.StaticWebAssets.xml

@@ -1,5 +1,6 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using StoreAppApi.common.extensions;
 using System.IO;
 
 namespace StoreAppApi.Repository.image
@@ -24,10 +25,23 @@ namespace StoreAppApi.Repository.image
         public byte[] GetUserImage(int userId)
         {
             var path = $"{ImageUserDir}{userId}.jpg";
+
             if (File.Exists(path))
                 return File.ReadAllBytes(path);
             else
                 return null;
+        }
+
+        public string GetUserImageSize(int userId)
+        {
+            var path = $"{ImageUserDir}{userId}.jpg";
+
+            if (!File.Exists(path))
+                return null;
+
+            FileInfo file = new FileInfo(path);
+
+            return file.Length.BytesToString();
         }
 
         public void PostUserImage(byte[] imgBytes, int userId)

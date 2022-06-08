@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using StoreAppApi.common.extensions;
 using System.IO;
 
 namespace StoreAppApi.Repository.product.video
@@ -20,6 +21,25 @@ namespace StoreAppApi.Repository.product.video
                 return File.ReadAllBytes(path);
             else
                 return null;
+        }
+
+        public string GetFileSize(
+            string companyTitle, string productTitle,
+            int productId, int companyId)
+        {
+            string startupPath = Directory.GetCurrentDirectory();
+
+            string path = startupPath + $"/companies/" +
+                $"{companyTitle}_{companyId}/products/" +
+                $"{productTitle}_{productId}/video/" +
+                $"video_{productTitle}_{productId}.mp4";
+
+            if (!File.Exists(path))
+                return null;
+
+            FileInfo file = new FileInfo(path);
+
+            return file.Length.BytesToString();
         }
 
         public async void UploadFile(

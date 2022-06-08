@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using StoreAppApi.common.extensions;
 using StoreAppApi.Repository.company.Event.promoVideo;
 using System.IO;
 
@@ -18,6 +19,23 @@ namespace StoreAppApi.Repository.company.Event.promoVideo
                 return File.ReadAllBytes(path);
             else
                 return null;
+        }
+
+        public string GetFileVideoSize(
+            string companyTitle, int companyId, int productId,
+            string productTitle, int eventId, string eventTitle)
+        {
+            string path = $"companies/{companyTitle}_{companyId}" +
+                $"/products/{productTitle}_{productId}" +
+                $"/events/{eventTitle}_{eventId}/promoVideo" +
+                $"/event_{eventTitle}_{eventId}.mp4";
+
+            if (!File.Exists(path))
+                return null;
+
+            FileInfo file = new FileInfo(path);
+
+            return file.Length.BytesToString();
         }
 
         public async void UploadFileVideo(

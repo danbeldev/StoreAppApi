@@ -38,7 +38,7 @@ namespace StoreAppApi
         public void ConfigureServices(IServiceCollection services)
         {
             MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
-            builder.Server = "localhost";
+            builder.Server = "cfif31.ru";
             builder.Port = 3306;
             builder.UserID = "ISPr24-39_BeluakovDS";
             builder.Password = "ISPr24-39_BeluakovDS";
@@ -120,7 +120,7 @@ namespace StoreAppApi
                     Description = "JWT Authorization header using the Bearer scheme."
                 });
 
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "StoreAppApi", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "StoreAppApi", Version = "v1.1" });
             });
         }
 
@@ -137,7 +137,7 @@ namespace StoreAppApi
                     c.RouteTemplate = "swagger/{documentName}/swagger.json";
                     c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
                     {
-                        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"https://{httpReq.Host.Value}/{basePath}" } };
+                        swaggerDoc.Servers = new List<OpenApiServer> { new OpenApiServer { Url = $"http://{httpReq.Host.Value}/{basePath}" } };
                     });
                 });
                 app.UseSwaggerUI(c =>

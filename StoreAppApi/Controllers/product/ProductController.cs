@@ -10,10 +10,12 @@ using StoreAppApi.DTOs.company;
 using StoreAppApi.DTOs.company.product;
 using StoreAppApi.DTOs.product;
 using StoreAppApi.DTOs.product.review;
+using StoreAppApi.DTOs.user;
 using StoreAppApi.models.product;
 using StoreAppApi.models.product.enums;
 using StoreAppApi.models.product.review;
 using StoreAppApi.models.user;
+using StoreAppApi.models.сompany.product;
 using StoreAppApi.models.сompany.product.enums;
 using StoreAppApi.Repository.product.file;
 using StoreAppApi.Repository.product.icon;
@@ -55,7 +57,26 @@ namespace StoreAppApi.Controllers.product
             _efModel = model;
         }
 
-        [HttpGet("icon/{productId}.jpg")]
+        [HttpOptions("{id}/Icon/Size")]
+        public async Task<ActionResult<string>> OptionsProductIcon(int id)
+        {
+            Product product = await _efModel.Products
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (product == null)
+                return NotFound();
+
+            string size = _iconProductRepository.GetProductIconSize(
+                id, product.Title, product.Company.Title, product.Company.Id);
+
+            if (size == null)
+                return NotFound();
+            else
+                return size;
+        }
+
+        [HttpGet("Icon/{productId}.jpg")]
         public async Task<ActionResult> GetProductIcon(int productId)
         {
             Product product = await _efModel.Products
@@ -67,6 +88,7 @@ namespace StoreAppApi.Controllers.product
 
             byte[] file = _iconProductRepository.GetProductIcon(
                 productId, product.Title, product.Company.Title, product.Company.Id);
+            
             if (file != null)
                 return File(file, "image/jpeg");
             else
@@ -122,6 +144,27 @@ namespace StoreAppApi.Controllers.product
             return Ok();
         }
 
+        [HttpOptions("{id}/image/{idImage}/Size")]
+        public async Task<ActionResult<string>> OptionsProductImage(int id, int idImage)
+        {
+            Product product = await _efModel.Products
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (product == null)
+                return NotFound();
+
+            string size = _imageProductRepository.GetProductImageSize(
+                product.Id, product.Title, product.Company.Title,
+                idImage, product.Company.Id
+                );
+
+            if (size == null)
+                return NotFound();
+            else
+                return size;
+        }
+
         [HttpGet("{id}/image/{idImage}.jpg")]
         public async Task<ActionResult> GetProductImage(int id, int idImage)
         {
@@ -133,8 +176,10 @@ namespace StoreAppApi.Controllers.product
                 return NotFound();
 
             byte[] file = _imageProductRepository.GetProductImage(
-                product.Id, product.Title, product.Company.Title, idImage, product.Company.Id
+                product.Id, product.Title, product.Company.Title,
+                idImage, product.Company.Id
                 );
+
             if (file != null)
                 return File(file, "image/jpeg");
             else
@@ -298,8 +343,66 @@ namespace StoreAppApi.Controllers.product
         }
 
         [Authorize(Roles = "CompanyUser")]
+        [HttpPut("{id}")]
+        public async Task<ActionResult> PutProduct(int id, ProductPostDTO productDTO)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            CompanyUser user = await _efModel.CompanyUsers
+                .Include(u => u.Сompany)
+                .FirstOrDefaultAsync(u => u.Id == idUser);
+
+            if (user == null)
+                return NotFound();
+
+            Product product = await _efModel.Products.FindAsync(id);
+
+            Genre genre = await _efModel.Genres.FindAsync(productDTO.GenreId);
+            Country country = await _efModel.Country.FindAsync(productDTO.CountryId);
+
+            if (product == null || genre == null || country == null)
+                return NotFound();
+
+            if (product.Company.Id != user.Сompany.Id)
+                return NotFound();
+
+            product.Title = productDTO.Title;
+            product.FullDescription = productDTO.FullDescription;
+            product.ShortDescription = productDTO.ShortDescription;
+            product.Email = productDTO.Email;
+            product.Phone = productDTO.Phone;
+            product.Price = productDTO.Price;
+            product.PrivacyPolicyWebUrl = productDTO.PrivacyPolicyWebUrl;
+            product.Advertising = productDTO.Advertising;
+            product.Version = productDTO.Version;
+            product.Website = productDTO.Website;
+            product.SocialNetwork = productDTO.SocialNetwork;
+            product.AgeRating = productDTO.AgeRating;
+            product.ProductType = productDTO.ProductType;
+            product.Genre = genre;
+            product.Country = country;
+
+            _efModel.Entry(product).State = EntityState.Modified;
+
+            try
+            {
+                await _efModel.SaveChangesAsync();
+
+            } catch (Exception ex) {
+                return NotFound(ex);
+            }
+
+            return Ok();
+        }
+
+        [Authorize(Roles = "CompanyUser")]
         [HttpPost]
-        public async Task<ActionResult> PostProduct(ProductPostDTO productPostDTO)
+        public async Task<ActionResult<ProductItemDTO>> PostProduct(ProductPostDTO productPostDTO)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
 
@@ -340,7 +443,8 @@ namespace StoreAppApi.Controllers.product
             _efModel.Products.Add(product);
             await _efModel.SaveChangesAsync();
 
-            return Ok();
+            return CreatedAtAction(nameof(GetProduct), new { product.Id },
+                _mapper.Map<ProductItemDTO>(product));
         }
 
         [HttpGet]
@@ -512,8 +616,21 @@ namespace StoreAppApi.Controllers.product
             };
         }
 
-        [HttpGet("{id}/File")]
-        public async Task<ActionResult> GetFile(int id)
+        [HttpGet("{id}/User/Download")]
+        public async Task<ActionResult<List<BaseUserDTO>>> GetProductUserDownload(int id)
+        {
+            Product product = await _efModel.Products
+                .Include(u => u.UserDownload)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (product == null)
+                return NotFound();
+
+            return _mapper.Map<List<BaseUserDTO>>(product.UserDownload);
+        }
+
+        [HttpOptions("{id}/File/Size")]
+        public async Task<ActionResult<string>> OptionsFile(int id)
         {
             Product product = await _efModel.Products
                 .Include(u => u.Company)
@@ -522,8 +639,46 @@ namespace StoreAppApi.Controllers.product
             if (product == null)
                 return NotFound();
 
+            string extension = product.FileExtension.ToString().ToLower();
+
+            string size = _fileProductRepository.GetFileSize(
+                $".{extension}", product.Company.Title, product.Title, product.Id,
+                product.Company.Id
+                );
+
+            if (size == null)
+                return NotFound();
+            else
+                return size;
+
+        }
+
+        [Authorize]
+        [HttpGet("{id}/File")]
+        public async Task<ActionResult> GetFile(int id)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            BaseUser user = await _efModel.BaseUsers.FindAsync(idUser);
+
+            Product product = await _efModel.Products
+                .Include(u => u.Company)
+                .Include(u => u.UserDownload)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (product == null || user == null)
+                return NotFound();
+
             if (product.ProductStatus == ProductStatus.BLOCKED)
                 return BadRequest("Product status blocked");
+
+            product.UserDownload.Add(user);
+            await _efModel.SaveChangesAsync();
 
             string extension = product.FileExtension.ToString().ToLower();
 
@@ -590,6 +745,27 @@ namespace StoreAppApi.Controllers.product
             await _efModel.SaveChangesAsync();
 
             return Ok();
+        }
+
+        [HttpOptions("{id}/Vide/Size")]
+        public async Task<ActionResult<string>> OptionsVideo(int id)
+        {
+            Product product = await _efModel.Products
+                .Include(u => u.Company)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (product == null)
+                return NotFound();
+
+            string size = _videoProductRepository.GetFileSize(
+                product.Company.Title, product.Title,
+                product.Id, product.Company.Id
+                );
+
+            if (size == null)
+                return NotFound();
+            else
+                return size;
         }
 
         [HttpGet("{id}/Video.mp4")]

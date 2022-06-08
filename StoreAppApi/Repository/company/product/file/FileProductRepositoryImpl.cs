@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using StoreAppApi.common.extensions;
 using System;
 using System.IO;
 
@@ -15,7 +16,8 @@ namespace StoreAppApi.Repository.product.file
 
             string path = startupPath + $"/companies/" +
                 $"{companyTitle}_{companyId}/products/" +
-                $"{productTitle}_{productId}/file/file_{productTitle}_{productId}{extension}";
+                $"{productTitle}_{productId}/file" +
+                $"/file_{productTitle}_{productId}{extension}";
 
             Console.WriteLine(path);
 
@@ -23,6 +25,27 @@ namespace StoreAppApi.Repository.product.file
                 return File.ReadAllBytes(path);
             else
                 return null;
+        }
+
+        public string GetFileSize(
+            string extension, string companyTitle,
+            string productTitle, int productId,
+            int companyId
+            )
+        {
+            string startupPath = Directory.GetCurrentDirectory();
+
+            string path = startupPath + $"/companies/" +
+                $"{companyTitle}_{companyId}/products/" +
+                $"{productTitle}_{productId}/file" +
+                $"/file_{productTitle}_{productId}{extension}";
+
+            if (!File.Exists(path))
+                return null;
+
+            FileInfo file = new FileInfo(path);
+
+            return file.Length.BytesToString();
         }
 
         public async void UploadFile(

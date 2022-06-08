@@ -9,5 +9,9 @@ namespace StoreAppApi.Repository.product.video
 
         byte[] GetFile(string companyTitle, string productTitle,
             int productId, int companyId);
+
+        string GetFileSize(
+            string companyTitle, string productTitle,
+            int productId, int companyId);
     }
 }

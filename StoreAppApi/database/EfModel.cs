@@ -24,7 +24,7 @@ namespace FastestDeliveryApi.database
 
         public EfModel(DbContextOptions options) : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
         public virtual DbSet<BaseUser> BaseUsers { get; set; }

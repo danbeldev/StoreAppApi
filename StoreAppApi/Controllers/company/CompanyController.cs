@@ -11,7 +11,6 @@ using StoreAppApi.DTOs.company.Event;
 using StoreAppApi.DTOs.product;
 using StoreAppApi.models.user;
 using StoreAppApi.models.сompany;
-using StoreAppApi.models.сompany.product.enums;
 using StoreAppApi.Repository.company.banner;
 using StoreAppApi.Repository.company.logo;
 using System;
@@ -43,6 +42,79 @@ namespace StoreAppApi.Controllers.company
             _mapper = mapper;
         }
 
+        [Authorize(Roles = "CompanyUser")]
+        [HttpPut]
+        public async Task<ActionResult> PutCompany(CompanyPostDTO companyDTO)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            CompanyUser user = await _efModel.CompanyUsers
+                .Include(u => u.Сompany)
+                .FirstOrDefaultAsync(u => u.Id == idUser);
+
+            if (user == null)
+                return NotFound();
+
+            Сompany сompany = await _efModel.Сompanies.FindAsync(user.Сompany.Id);
+
+            if (сompany == null)
+                return NotFound();
+
+            if (сompany.Id != user.Сompany.Id)
+                return NotFound();
+
+            сompany.Title = companyDTO.Title;
+            сompany.Description = companyDTO.Description;
+
+            _efModel.Entry(сompany).State = EntityState.Modified;
+
+            try
+            {
+                await _efModel.SaveChangesAsync();
+            } catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+
+            return Ok();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CompanyItemDTO>> GetCompanyById(int id)
+        {
+            Сompany сompany = await _efModel.Сompanies
+                .Include(u => u.Products)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (сompany == null)
+                return NotFound();
+
+            return _mapper.Map<CompanyItemDTO>(сompany);
+        }
+
+        [HttpOptions("{id}/Banner/Size")]
+        public async Task<ActionResult<string>> OptionsCompanyBanner(int id)
+        {
+            Сompany сompany = await _efModel.Сompanies.FindAsync(id);
+
+            if (сompany == null)
+                return NotFound();
+
+            string size =  _bannerRepository.GetCompanyBannerSize(
+                сompany.Title, id
+                );
+
+            if (size == null)
+                return NotFound();
+            else
+                return size;
+        }
+
         [HttpGet("{id}/banner.jpg")]
         public async Task<ActionResult> GetCompanyBanner(int id)
         {
@@ -60,6 +132,7 @@ namespace StoreAppApi.Controllers.company
             else
                 return NotFound();
         }
+
 
         [Authorize(Roles = "CompanyUser")]
         [HttpPost("Banner")]
@@ -95,6 +168,25 @@ namespace StoreAppApi.Controllers.company
             await _efModel.SaveChangesAsync();
 
             return Ok();
+        }
+
+        [HttpOptions("{id}/Logo/Size")]
+        public async Task<ActionResult<string>> OptionsCompanyLogo(int id)
+        {
+            Сompany сompany = await _efModel.Сompanies.FindAsync(id);
+
+            if (сompany == null)
+                return NotFound();
+
+            string size = _logoCompanyRepository.GetCompanyLogoSize(
+                сompany.Title, сompany.Id
+                );
+
+            if (size == null)
+                return NotFound();
+            else
+                return size;
+
         }
 
         [HttpGet("{id}/logo.jpg")]

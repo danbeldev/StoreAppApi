@@ -4,6 +4,8 @@
     {
         public byte[] GetCompanyBanner(string companyTitle, int companyId);
 
+        public string GetCompanyBannerSize(string companyTitle, int companyId);
+
         public void PostCompanyBanner(byte[] imgBytes, string companyTitle, int companyId);
 
         public void DeleteCompanyBanner(string companyTitle, int companyId);

@@ -3,9 +3,12 @@ using FastestDeliveryApi.database;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StoreAppApi.Auth;
 using StoreAppApi.Controllers.company.common;
+using StoreAppApi.DTOs.product;
+using StoreAppApi.DTOs.product.review;
 using StoreAppApi.DTOs.user;
 using StoreAppApi.models.user;
 using StoreAppApi.Repository;
@@ -38,6 +41,86 @@ namespace StoreAppApi.Controllers
         }
 
         [Authorize]
+        [HttpGet("Product/Review")]
+        public async Task<ActionResult<ReviewDTO>> GetUserReview()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            BaseUser user = await _efModel.BaseUsers
+                .Include(u => u.Reviews)
+                .FirstOrDefaultAsync(u => u.Id == idUser);
+
+            if (user == null || user.Reviews == null)
+                return NotFound();
+
+            return new ReviewDTO
+            {
+                Items = user.Reviews
+            };
+        }
+
+        [Authorize]
+        [HttpGet("/Product/Download")]
+        public async Task<ActionResult<ProductDTO>> GetProductDowlaund()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            BaseUser user = await _efModel.BaseUsers
+                .Include(u => u.ProductsDownload)
+                .FirstOrDefaultAsync(u => u.Id == idUser);
+
+            if (user == null)
+                return NotFound();
+
+            return new ProductDTO
+            {
+                Items = _mapper.Map<List<ProductItemDTO>>(user.ProductsDownload)
+            };
+        }
+
+        [Authorize]
+        [HttpPut]
+        public async Task<ActionResult> PutUser(UserUpdateDTO userDTO)
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if (identity == null)
+                return NotFound();
+
+            int idUser = Convert.ToInt32(identity.FindFirst("Id").Value);
+
+            BaseUser user = await _efModel.BaseUsers.FindAsync(idUser);
+
+            if (user == null)
+                return NotFound();
+
+            user.Username = userDTO.Username;
+            user.Email = userDTO.Email;
+
+            _efModel.Entry(user).State = EntityState.Modified;
+
+            try
+            {
+                await _efModel.SaveChangesAsync();
+            } catch (Exception ex)
+            {
+                return NotFound(ex);
+            }
+
+            return Ok();
+        }
+
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<BaseUserDTO>> GetBaseUser()
         {
@@ -65,6 +148,17 @@ namespace StoreAppApi.Controllers
                 return NotFound();
 
             return _mapper.Map<BaseUserDTO>(user);
+        }
+
+        [HttpOptions("{id}/Image/Size")]
+        public ActionResult<string> OptionsUserImage(int id)
+        {
+            string size = _imageUserRepository.GetUserImageSize(id);
+
+            if (size == null)
+                return NotFound();
+            else
+                return size;
         }
 
         [HttpGet("user_{id}.jpg")]
@@ -108,18 +202,29 @@ namespace StoreAppApi.Controllers
         }
 
         [HttpPost("Registration")]
-        public async Task<ActionResult> Registration(RegistrationDTO registrationDTO)
+        public async Task<ActionResult<RegistrationResultDTO>> Registration(RegistrationDTO registrationDTO)
         {
             if (_efModel.BaseUsers.Any(u => u.Email == registrationDTO.Email))
-                return BadRequest("Пользователь с таким email уже существует");
+                return new RegistrationResultDTO
+                {
+                    Error = "Пользователь с таким email уже существует"
+                };
 
             if (registrationDTO.Email.Length < 6 || registrationDTO.Password.Length < 6)
-                return BadRequest("Email должен состоять из 8 или больше символов \n" +
+                return new RegistrationResultDTO
+                {
+                    Error = "" +
+                    "Email должен состоять из 8 или больше символов \n" +
                     "Password должен состоять из 8 или больше символов \n" +
-                   "FIO должен состоять из 6 или больше символов");
+                   "FIO должен состоять из 6 или больше символов"
+                };
 
             if (!registrationDTO.Email.Contains(".") || !registrationDTO.Email.Contains("@"))
-                return BadRequest("Некорректно введен Email");
+                return new RegistrationResultDTO
+                {
+                    Error = "" +
+                    "Некорректно введен Email"
+                };
 
             _efModel.BaseUsers.Add(new BaseUser
             {

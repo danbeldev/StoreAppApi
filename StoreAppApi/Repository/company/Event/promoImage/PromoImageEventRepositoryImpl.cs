@@ -1,5 +1,6 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using StoreAppApi.common.extensions;
 using System.IO;
 
 namespace StoreAppApi.Repository.company.Event.promo
@@ -19,6 +20,20 @@ namespace StoreAppApi.Repository.company.Event.promo
                 return File.ReadAllBytes(path);
             else
                 return null;
+        }
+
+        public string GetCompanyPromoSize(string companyTitle, int companyId, int productId, string productTitle, int eventId, string eventTitle)
+        {
+            string path = $"companies/{companyTitle}_{companyId}" +
+                $"/products/{productTitle}_{productId}" +
+                $"/events/{eventTitle}_{eventId}/promoImage/event_{eventTitle}_{eventId}.jpg";
+
+            if (!File.Exists(path))
+                return null;
+
+            FileInfo file = new FileInfo(path);
+
+            return file.Length.BytesToString();
         }
 
         public void PostCompanyPromo(

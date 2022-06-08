@@ -1,5 +1,6 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using StoreAppApi.common.extensions;
 using System.IO;
 
 namespace StoreAppApi.Repository.product.image
@@ -9,17 +10,20 @@ namespace StoreAppApi.Repository.product.image
         const string ProductDir = "products/";
 
         public void DeleteProductImage(
-            int productId, string productTitle, string companyTitle, int productImageId, int companyId)
+            int productId, string productTitle, string companyTitle,
+            int productImageId, int companyId)
         {
             var path = $"companies/{companyTitle}_{companyId}" +
-                $"/{ProductDir}{productTitle}_{productId}/images/{productTitle}_{productImageId}.jpg";
+                $"/{ProductDir}{productTitle}_{productId}" +
+                $"/images/{productTitle}_{productImageId}.jpg";
 
             if (File.Exists(path))
                 File.Delete(path);
         }
 
         public byte[] GetProductImage(
-            int productId, string productTitle, string companyTitle, int productImageId, int companyId)
+            int productId, string productTitle, string companyTitle,
+            int productImageId, int companyId)
         {
             var path = $"companies/{companyTitle}_{companyId}" +
                 $"/{ProductDir}{productTitle}_{productId}" +
@@ -31,8 +35,25 @@ namespace StoreAppApi.Repository.product.image
                 return null;
         }
 
+        public string GetProductImageSize(
+            int productId, string productTitle, string companyTitle,
+            int productImageId, int companyId)
+        {
+            var path = $"companies/{companyTitle}_{companyId}" +
+                $"/{ProductDir}{productTitle}_{productId}" +
+                $"/images/{productTitle}_{productImageId}.jpg";
+
+            if (!File.Exists(path))
+                return null;
+
+            FileInfo file = new FileInfo(path);
+
+            return file.Length.BytesToString();
+        }
+
         public void PostProductImage(
-            byte[] imgBytes, int productId, string productTitle, string companyTitle, int productImageId, int companyId)
+            byte[] imgBytes, int productId, string productTitle,
+            string companyTitle, int productImageId, int companyId)
         {
             var path = $"companies/{companyTitle}_{companyId}" +
                 $"/{ProductDir}{productTitle}_{productId}/images/";

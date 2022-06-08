@@ -9,5 +9,9 @@ namespace StoreAppApi.Repository.product.file
 
         byte[] GetFile(string extension, string companyTitle, string productTitle,
             int productId, int companyId);
+
+        string GetFileSize(string extension, string companyTitle, string productTitle,
+            int productId, int companyId
+            );
     }
 }

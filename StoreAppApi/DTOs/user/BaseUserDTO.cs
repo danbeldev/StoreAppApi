@@ -7,6 +7,7 @@ namespace StoreAppApi.DTOs.user
 {
     public class BaseUserDTO
     {
+        [Key] public int Id { get; set; }
         [Required, MaxLength(256)] public string Username { get; set; }
         [Required, MaxLength(128)] public string Email { get; set; }
         public string Photo { get; set; }

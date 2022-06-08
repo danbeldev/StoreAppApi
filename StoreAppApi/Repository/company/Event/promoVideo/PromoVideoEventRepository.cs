@@ -15,5 +15,11 @@ namespace StoreAppApi.Repository.company.Event.promoVideo
             int productId, string productTitle,
             int eventId, string eventTitle
             );
+
+        public string GetFileVideoSize(
+            string companyTitle, int companyId,
+            int productId, string productTitle,
+            int eventId, string eventTitle
+            );
     }
 }
